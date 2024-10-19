@@ -1,0 +1,6 @@
+name: MiniGame
+version: 1.2.0
+main: MiniGame\Main
+api: [5.0.0]
+author: VsrStudio
+description: A team-based minigame plugin with arenas, power-ups, and custom objectives for PocketMine-MP API 5
