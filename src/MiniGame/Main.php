@@ -16,7 +16,6 @@ use pocketmine\world\position\Position;
 use pocketmine\utils\TextFormat as TF;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\block\VanillaBlocks;
-use pocketmine\world\WorldManager;
 
 class Main extends PluginBase implements Listener {
     private array $teams = [
@@ -35,6 +34,7 @@ class Main extends PluginBase implements Listener {
 
     public function onEnable(): void {
         $this->getLogger()->info("MiniGame Plugin Enabled!");
+        $this->saveDefaultConfig(); // Load config from config.yml
 
         // Set spawn positions (replace with actual coordinates)
         $this->redSpawn = new Position(100, 64, 100, $this->getServer()->getWorldManager()->getDefaultWorld());
@@ -78,6 +78,10 @@ class Main extends PluginBase implements Listener {
                 }
                 return true;
 
+            case "stats":
+                $this->showStats($sender);
+                return true;
+
             default:
                 return false;
         }
@@ -93,7 +97,6 @@ class Main extends PluginBase implements Listener {
             $this->teams["blue"][] = $player;
             $player->teleport($this->blueSpawn);
         } else {
-            // Auto-assign to balance teams
             if (count($this->teams["red"]) <= count($this->teams["blue"])) {
                 $this->teams["red"][] = $player;
                 $player->teleport($this->redSpawn);
@@ -108,17 +111,13 @@ class Main extends PluginBase implements Listener {
 
     private function startGame(): void {
         $this->gameStarted = true;
-        // Reset scores
         $this->scores["red"] = 0;
         $this->scores["blue"] = 0;
         $this->updateScoreboard();
-        // Spawn power-ups (example positions)
-        $this->spawnPowerUp(new Position(150, 64, 150, $this->getServer()->getWorldManager()->getDefaultWorld()));
     }
 
     private function endGame(): void {
         $this->gameStarted = false;
-        // Reset teams
         foreach ($this->teams as $team => $members) {
             foreach ($members as $member) {
                 unset($this->teams[$team][$member->getName()]);
@@ -128,7 +127,6 @@ class Main extends PluginBase implements Listener {
     }
 
     private function updateScoreboard(): void {
-        // Scoreboard logic would go here
         foreach ($this->players as $player) {
             $player->sendMessage(TF::GREEN . "Score: Red - " . $this->scores["red"] . ", Blue - " . $this->scores["blue"]);
         }
@@ -138,6 +136,11 @@ class Main extends PluginBase implements Listener {
         foreach ($this->players as $player) {
             $player->sendMessage(TF::YELLOW . "Game has ended. Scores: Red - " . $this->scores["red"] . ", Blue - " . $this->scores["blue"]);
         }
+    }
+
+    private function showStats(Player $player): void {
+        // Show stats (placeholder for now)
+        $player->sendMessage(TF::AQUA . "Stats: (placeholder)");
     }
 
     public function onPlayerDeath(PlayerDeathEvent $event): void {
@@ -166,17 +169,8 @@ class Main extends PluginBase implements Listener {
         $block = $event->getBlock();
         if ($block->getTypeId() === VanillaBlocks::DIAMOND_BLOCK()->getTypeId()) {
             $player = $event->getPlayer();
-            $player->addEffect(new EffectInstance(Effect::getEffect(Effect::SPEED), 600, 1)); // Speed power-up
             $player->sendMessage(TF::GREEN . "You have picked up a speed power-up!");
         }
-    }
-
-    private function spawnPowerUp(Position $position): void {
-        $powerUp = VanillaBlocks::DIAMOND_BLOCK(); // Example power-up block
-        $this->getServer()->getWorldManager()->getDefaultWorld()->setBlock($position, $powerUp);
-        $this->getScheduler()->scheduleDelayedTask(new ClosureTask(function () use ($position): void {
-            $this->getServer()->getWorldManager()->getDefaultWorld()->setBlock($position, VanillaBlocks::AIR()); // Remove power-up after 30 seconds
-        }), 20 * 30); // 30 seconds
     }
 
     private function getPlayerTeam(Player $player): string {
