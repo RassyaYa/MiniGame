@@ -1,0 +1,13 @@
+# Configurations for the minigame
+
+game:
+  start_delay: 10            # Delay in seconds before the game starts
+  game_duration: 300          # Duration of the game in seconds
+  max_score: 10               # Maximum score to win the game
+  auto_balance_teams: true    # Auto balance teams if necessary
+  enable_spawn_protection: true # Enable spawn protection for players after respawn
+  game_mode: "capture_the_flag" # Game mode (can be extended for multiple modes)
+  max_players_per_team: 5     # Maximum number of players per team
+
+powerups:
+  spawn_interval: 30          # Interval to spawn power-ups
